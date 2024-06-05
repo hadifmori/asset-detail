@@ -50,6 +50,11 @@
                 errorElement.textContent = "Error registering asset: " + error;
             }
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const registerButton = document.getElementById("registerButton");
+            registerButton.addEventListener("click", registerAsset);
+        });
     </script>
 </head>
 <body>
@@ -59,7 +64,7 @@
         <input type="text" id="description" placeholder="Description">
         <input type="text" id="location" placeholder="Location">
         <input type="text" id="remark" placeholder="Remark">
-        <button onclick="registerAsset()">Register Asset</button>
+        <button id="registerButton">Register Asset</button>
         <p id="error" class="error"></p>
     </div>
 </body>
