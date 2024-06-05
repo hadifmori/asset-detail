@@ -10,14 +10,15 @@
         .asset { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
         .asset img { max-width: 100%; height: auto; }
         .error { color: red; }
+        input[type="text"] { width: 100%; margin-bottom: 10px; }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import * as QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
@@ -49,7 +50,6 @@
 
                     const pictureElement = document.getElementById("picture");
                     pictureElement.onload = function() {
-                        // This function will be executed once the image is fully loaded
                         QRCode.toDataURL(assetData.assetId, function (err, url) {
                             if (err) {
                                 errorElement.textContent = "Error generating QR code: " + err;
@@ -59,7 +59,6 @@
                         });
                     };
 
-                    // Set the image source only if assetData.picture is available
                     if (assetData.picture) {
                         pictureElement.src = assetData.picture;
                     } else {
