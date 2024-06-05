@@ -31,25 +31,27 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function registerAsset() {
-            const assetId = document.getElementById("assetId").value;
-            const description = document.getElementById("description").value;
-            const location = document.getElementById("location").value;
-            const remark = document.getElementById("remark").value;
-            const errorElement = document.getElementById("error");
+async function registerAsset() {
+    const assetId = document.getElementById("assetId").value;
+    const description = document.getElementById("description").value;
+    const location = document.getElementById("location").value;
+    const remark = document.getElementById("remark").value;
+    const errorElement = document.getElementById("error");
 
-            try {
-                await setDoc(doc(db, "assets", assetId), {
-                    assetId: assetId,
-                    description: description,
-                    location: location,
-                    remark: remark
-                });
-                errorElement.textContent = "Asset registered successfully.";
-            } catch (error) {
-                errorElement.textContent = "Error registering asset: " + error;
-            }
-        }
+    try {
+        await setDoc(doc(db, "assets", assetId), {
+            assetId: assetId,
+            description: description,
+            location: location,
+            remark: remark
+        });
+        errorElement.textContent = "Asset registered successfully.";
+        // Redirect to the page to view registered assets
+        window.location.href = "viewAssets.html";
+    } catch (error) {
+        errorElement.textContent = "Error registering asset: " + error;
+    }
+}
 
         document.addEventListener("DOMContentLoaded", function() {
             const registerButton = document.getElementById("registerButton");
