@@ -56,15 +56,13 @@
                 });
 
                 errorElement.textContent = "Asset registered successfully.";
+
+                // Redirect to viewAssets.html
+                window.location.href = "viewAssets.html";
             } catch (error) {
                 errorElement.textContent = "Error registering asset: " + error;
             }
         }
-
-        // Attach event listener programmatically
-        window.onload = function() {
-            document.querySelector('button').addEventListener('click', registerAsset);
-        };
     </script>
 </head>
 <body>
@@ -76,7 +74,7 @@
         <input type="text" id="remark" placeholder="Remark">
         <input type="file" id="picture" accept="image/*"> <!-- Input for picture -->
         <input type="text" id="username" placeholder="Username"> <!-- Input for username -->
-        <button>Register Asset</button>
+        <button onclick="registerAsset()">Register Asset</button>
         <p id="error" class="error"></p>
     </div>
 </body>
