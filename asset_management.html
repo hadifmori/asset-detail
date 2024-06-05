@@ -3,143 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Management</title>
+    <title>Asset Registration</title>
     <style>
+        /* Basic styling */
         body { font-family: Arial, sans-serif; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1, h2 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        table, th, td { border: 1px solid #ccc; }
-        th, td { padding: 10px; text-align: left; }
-        .error { color: red; }
-        .center { text-align: center; }
-        @media (max-width: 600px) {
-            .container { padding: 10px; }
-            table, th, td { font-size: 14px; }
-            input, button { width: 100%; margin-top: 10px; }
-        }
+        form { max-width: 600px; margin: 0 auto; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        img.preview { max-width: 100%; margin-bottom: 10px; }
     </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
-            authDomain: "asset-tagging-testing.firebaseapp.com",
-            projectId: "asset-tagging-testing",
-            storageBucket: "asset-tagging-testing.appspot.com",
-            messagingSenderId: "332441186174",
-            appId: "1:332441186174:web:9fd52a411725f95032cd2f",
-            measurementId: "G-GLDNF2CFKB"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        async function saveAssetInfo() {
-            const assetId = document.getElementById("assetId").value;
-            const description = document.getElementById("description").value;
-            const location = document.getElementById("location").value;
-            const remark = document.getElementById("remark").value;
-            const username = document.getElementById("username").value;
-            const errorElement = document.getElementById("error");
-
-            if (!assetId || !description || !location || !remark || !username) {
-                errorElement.textContent = "All fields are required.";
-                return;
-            }
-
-            try {
-                await setDoc(doc(db, "assets", assetId), {
-                    assetId: assetId,
-                    description: description,
-                    location: location,
-                    remark: remark,
-                    username: username
-                });
-                errorElement.textContent = "Asset information saved successfully.";
-            } catch (error) {
-                errorElement.textContent = "Error saving asset information: " + error;
-            }
-        }
-
-        async function viewAssetInfo() {
-            const assetId = document.getElementById("searchAssetId").value;
-            const errorElement = document.getElementById("error");
-            if (!assetId) {
-                errorElement.textContent = "Asset ID is required to search.";
-                return;
-            }
-
-            try {
-                const docRef = doc(db, "assets", assetId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    document.getElementById("assetId").value = data.assetId;
-                    document.getElementById("description").value = data.description;
-                    document.getElementById("location").value = data.location;
-                    document.getElementById("remark").value = data.remark;
-                    document.getElementById("username").value = data.username;
-                    errorElement.textContent = "";
-                } else {
-                    errorElement.textContent = "No asset found with the provided Asset ID.";
-                }
-            } catch (error) {
-                errorElement.textContent = "Error retrieving asset information: " + error;
-            }
-        }
-
-        function checkLogin() {
-            if (!sessionStorage.getItem("loggedIn")) {
-                window.location.href = "login.html";
-            }
-        }
-
-        window.saveAssetInfo = saveAssetInfo;
-        window.viewAssetInfo = viewAssetInfo;
-        window.onload = checkLogin;
-    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Asset Management</h1>
+    <form>
+        <label for="assetID">Asset ID:</label>
+        <input type="text" id="assetID" name="assetID" required>
 
-        <div>
-            <input type="text" id="searchAssetId" placeholder="Enter Asset ID to Search">
-            <button onclick="viewAssetInfo()">View Asset Info</button>
-        </div>
-        
-        <table>
-            <tr>
-                <th>Asset ID</th>
-                <td><input type="text" id="assetId"></td>
-            </tr>
-            <tr>
-                <th>Description</th>
-                <td><input type="text" id="description"></td>
-            </tr>
-            <tr>
-                <th>Location</th>
-                <td><input type="text" id="location"></td>
-            </tr>
-            <tr>
-                <th>Remark</th>
-                <td><input type="text" id="remark"></td>
-            </tr>
-            <tr>
-                <th>Username</th>
-                <td><input type="text" id="username"></td>
-            </tr>
-        </table>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
 
-        <div class="center">
-            <button onclick="saveAssetInfo()">Save Asset Info</button>
-        </div>
-        <p id="error" class="error"></p>
-    </div>
+        <label for="location">Location:</label>
+        <input type="text" id="location" name="location">
+
+        <label for="remark">Remark:</label>
+        <textarea id="remark" name="remark" rows="4"></textarea>
+
+        <label for="picture">Picture:</label>
+        <input type="file" id="picture" name="picture" accept="image/*" required>
+        <img class="preview" id="previewImage" src="#" alt="Preview">
+
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        // JavaScript to update preview image
+        document.getElementById("picture").addEventListener("change", function(event) {
+            var preview = document.getElementById("previewImage");
+            var file = event.target.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+            }
+
+            reader.readAsDataURL(file);
+        });
+    </script>
 </body>
 </html>
