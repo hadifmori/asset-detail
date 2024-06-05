@@ -16,7 +16,7 @@
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
@@ -31,9 +31,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function loadAsset() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const assetId = urlParams.get('id');
+        async function loadAsset(assetId) {
             const errorElement = document.getElementById("error");
 
             if (!assetId) {
@@ -61,12 +59,39 @@
             }
         }
 
-        window.loadAsset = loadAsset; // Expose loadAsset function to the global scope
+        async function populateAssetsDropdown() {
+            const errorElement = document.getElementById("error");
+            const selectElement = document.getElementById("assetSelect");
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "assets"));
+                querySnapshot.forEach((doc) => {
+                    const option = document.createElement("option");
+                    option.value = doc.id;
+                    option.textContent = doc.id;
+                    selectElement.appendChild(option);
+                });
+            } catch (error) {
+                errorElement.textContent = "Error fetching assets: " + error;
+            }
+        }
+
+        // Attach event listener for dropdown change
+        window.onload = function() {
+            populateAssetsDropdown();
+            document.getElementById("assetSelect").addEventListener("change", function() {
+                const selectedAssetId = this.value;
+                loadAsset(selectedAssetId);
+            });
+        };
     </script>
 </head>
-<body onload="loadAsset()">
+<body>
     <div class="container">
         <h1>View Asset</h1>
+        <select id="assetSelect">
+            <option value="">Select an asset</option>
+        </select>
         <div class="asset">
             <p><strong>Asset ID:</strong> <span id="assetId"></span></p>
             <p><strong>Description:</strong> <span id="description"></span></p>
