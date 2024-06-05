@@ -31,32 +31,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-async function registerAsset() {
-    const assetId = document.getElementById("assetId").value;
-    const description = document.getElementById("description").value;
-    const location = document.getElementById("location").value;
-    const remark = document.getElementById("remark").value;
-    const errorElement = document.getElementById("error");
+        async function registerAsset() {
+            const assetId = document.getElementById("assetId").value;
+            const description = document.getElementById("description").value;
+            const location = document.getElementById("location").value;
+            const remark = document.getElementById("remark").value;
+            const pictureFile = document.getElementById("picture").files[0]; // Get the selected file
+            const username = document.getElementById("username").value; // Added username input
+            const errorElement = document.getElementById("error");
 
-    try {
-        await setDoc(doc(db, "assets", assetId), {
-            assetId: assetId,
-            description: description,
-            location: location,
-            remark: remark
-        });
-        errorElement.textContent = "Asset registered successfully.";
-        // Redirect to the page to view registered assets
-        window.location.href = "viewAssets.html";
-    } catch (error) {
-        errorElement.textContent = "Error registering asset: " + error;
-    }
-}
+            try {
+                // Upload picture to storage (if needed)
+                // For now, we'll just get the file name
+                const pictureFileName = pictureFile ? pictureFile.name : "No Picture";
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const registerButton = document.getElementById("registerButton");
-            registerButton.addEventListener("click", registerAsset);
-        });
+                // Save asset data to Firestore
+                await setDoc(doc(db, "assets", assetId), {
+                    assetId: assetId,
+                    description: description,
+                    location: location,
+                    remark: remark,
+                    picture: pictureFileName,
+                    username: username // Save username in Firestore
+                });
+
+                errorElement.textContent = "Asset registered successfully.";
+            } catch (error) {
+                errorElement.textContent = "Error registering asset: " + error;
+            }
+        }
     </script>
 </head>
 <body>
@@ -66,7 +69,9 @@ async function registerAsset() {
         <input type="text" id="description" placeholder="Description">
         <input type="text" id="location" placeholder="Location">
         <input type="text" id="remark" placeholder="Remark">
-        <button id="registerButton">Register Asset</button>
+        <input type="file" id="picture" accept="image/*"> <!-- Input for picture -->
+        <input type="text" id="username" placeholder="Username"> <!-- Input for username -->
+        <button onclick="registerAsset()">Register Asset</button>
         <p id="error" class="error"></p>
     </div>
 </body>
