@@ -1,81 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Asset</title>
-    <style>
-        /* Basic styling */
-        body { font-family: Arial, sans-serif; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
-        button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset Registration</title>
+  <!-- Firebase JavaScript SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
+      authDomain: "asset-tagging-testing.firebaseapp.com",
+      projectId: "asset-tagging-testing",
+      storageBucket: "asset-tagging-testing.appspot.com",
+      messagingSenderId: "332441186174",
+      appId: "1:332441186174:web:9fd52a411725f95032cd2f",
+      measurementId: "G-GLDNF2CFKB"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Register Asset</h1>
-        <form id="registerForm">
-            <label for="assetID">Asset ID:</label>
-            <input type="text" id="assetID" name="assetID" required>
+  <h1>Asset Registration</h1>
+  
+  <!-- Asset Registration Form -->
+  <form id="assetForm">
+    <label for="assetType">Asset Type:</label><br>
+    <input type="text" id="assetType" name="assetType"><br>
+    <label for="serialNumber">Serial Number:</label><br>
+    <input type="text" id="serialNumber" name="serialNumber"><br>
+    <label for="model">Model:</label><br>
+    <input type="text" id="model" name="model"><br>
+    <label for="purchaseDate">Purchase Date:</label><br>
+    <input type="date" id="purchaseDate" name="purchaseDate"><br>
+    <label for="location">Location:</label><br>
+    <input type="text" id="location" name="location"><br><br>
+    <button type="submit">Register Asset</button>
+  </form>
 
-            <label for="description">Description:</label>
-            <textarea id="description" name="description" rows="4" required></textarea>
+  <!-- Display Registered Assets -->
+  <h2>Registered Assets</h2>
+  <ul id="assetList"></ul>
 
-            <label for="location">Location:</label>
-            <input type="text" id="location" name="location">
+  <!-- JavaScript Code -->
+  <script>
+    // Reference to Firestore collection
+    const db = firebase.firestore();
+    const assetsRef = db.collection('assets');
 
-            <label for="remark">Remark:</label>
-            <textarea id="remark" name="remark" rows="4"></textarea>
+    // Asset Registration Form Submission
+    document.getElementById('assetForm').addEventListener('submit', function(event) {
+      event.preventDefault();
 
-            <!-- Add an input field for uploading image (optional) -->
-            <!-- <input type="file" id="picture" name="picture" accept="image/*" required> -->
+      const assetData = {
+        asset_type: document.getElementById('assetType').value,
+        serial_number: document.getElementById('serialNumber').value,
+        model: document.getElementById('model').value,
+        purchase_date: document.getElementById('purchaseDate').value,
+        location: document.getElementById('location').value
+      };
 
-            <button type="submit">Register</button>
-        </form>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-  apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
-  authDomain: "asset-tagging-testing.firebaseapp.com",
-  projectId: "asset-tagging-testing",
-  storageBucket: "asset-tagging-testing.appspot.com",
-  messagingSenderId: "332441186174",
-  appId: "1:332441186174:web:9fd52a411725f95032cd2f",
-  measurementId: "G-GLDNF2CFKB"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        // Function to register asset
-        document.getElementById("registerForm").addEventListener("submit", async function(event) {
-            event.preventDefault(); // Prevent form submission
-
-            // Get asset data from form
-            const assetData = {
-                assetID: document.getElementById("assetID").value,
-                description: document.getElementById("description").value,
-                location: document.getElementById("location").value,
-                remark: document.getElementById("remark").value
-            };
-
-            // Add asset data to Firestore
-            try {
-                await db.collection("assets").add(assetData);
-                // Redirect to view asset page after successful registration
-                window.location.href = "view_asset.html";
-            } catch (error) {
-                console.error("Error registering asset:", error);
-            }
+      // Add asset data to Firestore
+      assetsRef.add(assetData)
+        .then(function(docRef) {
+          console.log("Asset registered with ID: ", docRef.id);
+          // Clear form fields after successful registration
+          document.getElementById('assetForm').reset();
+        })
+        .catch(function(error) {
+          console.error("Error registering asset: ", error);
         });
-    </script>
+    });
+
+    // Display Registered Assets
+    assetsRef.onSnapshot(function(snapshot) {
+      const assetList = document.getElementById('assetList');
+      assetList.innerHTML = ''; // Clear previous list
+
+      snapshot.forEach(function(doc) {
+        const assetData = doc.data();
+        const li = document.createElement('li');
+        li.textContent = `Type: ${assetData.asset_type}, Serial: ${assetData.serial_number}, Model: ${assetData.model}, Location: ${assetData.location}`;
+        assetList.appendChild(li);
+      });
+    });
+  </script>
 </body>
 </html>
