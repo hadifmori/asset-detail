@@ -16,16 +16,17 @@
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
-            authDomain: "asset-tagging-testing.firebaseapp.com",
-            projectId: "asset-tagging-testing",
-            storageBucket: "asset-tagging-testing.appspot.com",
-            messagingSenderId: "332441186174",
-            appId: "1:332441186174:web:9fd52a411725f95032cd2f",
-            measurementId: "G-GLDNF2CFKB"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -34,23 +35,22 @@
         async function loadAsset(assetId) {
             const errorElement = document.getElementById("error");
 
-            if (!assetId) {
-                errorElement.textContent = "No asset ID provided.";
-                return;
-            }
-
             try {
                 const docRef = doc(db, "assets", assetId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const assetData = docSnap.data();
-                    document.getElementById("assetId").textContent = assetData.assetId;
-                    document.getElementById("description").textContent = assetData.description;
-                    document.getElementById("location").textContent = assetData.location;
-                    document.getElementById("remark").textContent = assetData.remark;
-                    document.getElementById("username").textContent = assetData.username;
-                    document.getElementById("picture").src = assetData.picture; // Assuming picture is a URL
+                    document.getElementById("assetId").value = assetData.assetId;
+                    document.getElementById("description").value = assetData.description;
+                    document.getElementById("location").value = assetData.location;
+                    document.getElementById("remark").value = assetData.remark;
+                    document.getElementById("username").value = assetData.username;
+                    document.getElementById("picture").src = assetData.picture;
+
+                    QRCode.toDataURL(assetData.assetId, function (err, url) {
+                        document.getElementById("qrCode").src = url;
+                    });
                 } else {
                     errorElement.textContent = "No such asset found.";
                 }
@@ -59,46 +59,50 @@
             }
         }
 
-        async function populateAssetsDropdown() {
+        async function saveAsset() {
+            const assetId = document.getElementById("assetId").value;
+            const description = document.getElementById("description").value;
+            const location = document.getElementById("location").value;
+            const remark = document.getElementById("remark").value;
+            const username = document.getElementById("username").value;
             const errorElement = document.getElementById("error");
-            const selectElement = document.getElementById("assetSelect");
 
             try {
-                const querySnapshot = await getDocs(collection(db, "assets"));
-                querySnapshot.forEach((doc) => {
-                    const option = document.createElement("option");
-                    option.value = doc.id;
-                    option.textContent = doc.id;
-                    selectElement.appendChild(option);
+                await setDoc(doc(db, "assets", assetId), {
+                    assetId: assetId,
+                    description: description,
+                    location: location,
+                    remark: remark,
+                    username: username
                 });
+                errorElement.textContent = "Asset updated successfully.";
             } catch (error) {
-                errorElement.textContent = "Error fetching assets: " + error;
+                errorElement.textContent = "Error updating asset: " + error;
             }
         }
 
-        // Attach event listener for dropdown change
         window.onload = function() {
-            populateAssetsDropdown();
-            document.getElementById("assetSelect").addEventListener("change", function() {
-                const selectedAssetId = this.value;
-                loadAsset(selectedAssetId);
-            });
+            const urlParams = new URLSearchParams(window.location.search);
+            const assetId = urlParams.get('assetId');
+            if (assetId) {
+                loadAsset(assetId);
+            }
+            document.getElementById("saveButton").addEventListener('click', saveAsset);
         };
     </script>
 </head>
 <body>
     <div class="container">
         <h1>View Asset</h1>
-        <select id="assetSelect">
-            <option value="">Select an asset</option>
-        </select>
         <div class="asset">
-            <p><strong>Asset ID:</strong> <span id="assetId"></span></p>
-            <p><strong>Description:</strong> <span id="description"></span></p>
-            <p><strong>Location:</strong> <span id="location"></span></p>
-            <p><strong>Remark:</strong> <span id="remark"></span></p>
-            <p><strong>Username:</strong> <span id="username"></span></p>
+            <p><strong>Asset ID:</strong> <input type="text" id="assetId" readonly></p>
+            <p><strong>Description:</strong> <input type="text" id="description"></p>
+            <p><strong>Location:</strong> <input type="text" id="location"></p>
+            <p><strong>Remark:</strong> <input type="text" id="remark"></p>
+            <p><strong>Username:</strong> <input type="text" id="username"></p>
             <img id="picture" src="" alt="Asset Picture">
+            <p><strong>QR Code:</strong> <img id="qrCode" src="" alt="QR Code"></p>
+            <button id="saveButton">Save Asset Info</button>
         </div>
         <p id="error" class="error"></p>
     </div>
