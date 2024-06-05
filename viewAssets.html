@@ -21,11 +21,12 @@
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import * as QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js";
+        import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
@@ -39,6 +40,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         async function loadAsset(assetId) {
             const errorElement = document.getElementById("error");
@@ -56,21 +58,21 @@
                     document.getElementById("username").value = assetData.username;
 
                     const pictureElement = document.getElementById("picture");
-                    pictureElement.onload = function() {
-                        QRCode.toDataURL(assetData.assetId, function (err, url) {
-                            if (err) {
-                                errorElement.textContent = "Error generating QR code: " + err;
-                                return;
-                            }
-                            document.getElementById("qrCode").src = url;
-                        });
-                    };
 
+                    // Set the image source only if assetData.picture is available
                     if (assetData.picture) {
                         pictureElement.src = assetData.picture;
                     } else {
                         errorElement.textContent = "No picture available for this asset.";
                     }
+
+                    QRCode.toDataURL(assetData.assetId, function (err, url) {
+                        if (err) {
+                            errorElement.textContent = "Error generating QR code: " + err;
+                            return;
+                        }
+                        document.getElementById("qrCode").src = url;
+                    });
                 } else {
                     errorElement.textContent = "No such asset found.";
                 }
