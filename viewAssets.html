@@ -3,38 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Registered Assets</title>
+    <title>View Asset</title>
     <style>
         body { font-family: Arial, sans-serif; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; }
-        th { background-color: #f2f2f2; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        table, th, td { border: 1px solid #ccc; }
+        th, td { padding: 10px; text-align: left; }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Registered Assets</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Asset ID</th>
-                    <th>Description</th>
-                    <th>Location</th>
-                    <th>Remark</th>
-                </tr>
-            </thead>
-            <tbody id="assetTableBody">
-                <!-- Registered assets will be dynamically added here -->
-            </tbody>
-        </table>
-    </div>
-
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
@@ -49,30 +30,37 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Function to fetch registered assets and display them in the table
-        async function displayRegisteredAssets() {
-            const assetTableBody = document.getElementById("assetTableBody");
+        async function loadAsset() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const assetId = urlParams.get('assetId');
+            const assetInfoContainer = document.getElementById("assetInfo");
 
             try {
-                const assetsSnapshot = await getDocs(collection(db, "assets"));
-                assetsSnapshot.forEach((doc) => {
-                    const assetData = doc.data();
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${assetData.assetId}</td>
-                        <td>${assetData.description}</td>
-                        <td>${assetData.location}</td>
-                        <td>${assetData.remark}</td>
+                const assetDocRef = doc(db, "assets", assetId);
+                const assetDocSnapshot = await getDoc(assetDocRef);
+                
+                if (assetDocSnapshot.exists()) {
+                    const assetData = assetDocSnapshot.data();
+                    assetInfoContainer.innerHTML = `
+                        <h1>Asset ID: ${assetData.assetId}</h1>
+                        <table>
+                            <tr><th>Description</th><td>${assetData.description}</td></tr>
+                            <tr><th>Location</th><td>${assetData.location}</td></tr>
+                            <tr><th>Remark</th><td>${assetData.remark}</td></tr>
+                        </table>
                     `;
-                    assetTableBody.appendChild(row);
-                });
+                } else {
+                    assetInfoContainer.innerHTML = "<p>Asset not found.</p>";
+                }
             } catch (error) {
-                console.error("Error fetching assets:", error);
+                console.error("Error loading asset:", error);
             }
         }
-
-        // Call the function to display registered assets when the page is loaded
-        displayRegisteredAssets();
     </script>
+</head>
+<body onload="loadAsset()">
+    <div class="container" id="assetInfo">
+        <!-- Asset information will be dynamically loaded here -->
+    </div>
 </body>
 </html>
