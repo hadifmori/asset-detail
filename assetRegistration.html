@@ -12,6 +12,8 @@
         .error { color: red; }
     </style>
     <!-- Firebase SDK -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -40,7 +42,6 @@
 
             try {
                 const pictureFileName = pictureFile ? pictureFile.name : "No Picture";
-
                 await setDoc(doc(db, "assets", assetId), {
                     assetId: assetId,
                     description: description,
@@ -50,14 +51,15 @@
                     username: username
                 });
 
-                errorElement.textContent = "Asset registered successfully.";
-                window.location.href = "viewAssets.html"; // Redirect to viewAssets.html
+                window.location.href = `viewAsset.html?assetId=${assetId}`;
             } catch (error) {
                 errorElement.textContent = "Error registering asset: " + error;
             }
         }
 
-        window.registerAsset = registerAsset; // Expose registerAsset function to the global scope
+        window.onload = function() {
+            document.querySelector('button').addEventListener('click', registerAsset);
+        };
     </script>
 </head>
 <body>
@@ -67,9 +69,9 @@
         <input type="text" id="description" placeholder="Description">
         <input type="text" id="location" placeholder="Location">
         <input type="text" id="remark" placeholder="Remark">
-        <input type="file" id="picture" accept="image/*"> <!-- Input for picture -->
-        <input type="text" id="username" placeholder="Username"> <!-- Input for username -->
-        <button onclick="registerAsset()">Register Asset</button>
+        <input type="file" id="picture" accept="image/*">
+        <input type="text" id="username" placeholder="Username">
+        <button>Register Asset</button>
         <p id="error" class="error"></p>
     </div>
 </body>
