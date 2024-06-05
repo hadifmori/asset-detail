@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Assets</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { text-decoration: none; color: #000; font-weight: bold; }
+        a:hover { color: #007BFF; }
+        .error { color: red; }
+    </style>
+    <!-- Firebase SDK -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
+            authDomain: "asset-tagging-testing.firebaseapp.com",
+            projectId: "asset-tagging-testing",
+            storageBucket: "asset-tagging-testing.appspot.com",
+            messagingSenderId: "332441186174",
+            appId: "1:332441186174:web:9fd52a411725f95032cd2f",
+            measurementId: "G-GLDNF2CFKB"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadAssets() {
+            const errorElement = document.getElementById("error");
+            const assetList = document.getElementById("assetList");
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "assets"));
+                querySnapshot.forEach((doc) => {
+                    const asset = doc.data();
+                    const li = document.createElement("li");
+                    const a = document.createElement("a");
+                    a.href = `viewAssets.html?assetId=${asset.assetId}`;
+                    a.textContent = `${asset.assetId} - ${asset.description}`;
+                    li.appendChild(a);
+                    assetList.appendChild(li);
+                });
+            } catch (error) {
+                errorElement.textContent = "Error loading assets: " + error;
+            }
+        }
+
+        window.onload = function() {
+            loadAssets();
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>List of Assets</h1>
+        <ul id="assetList"></ul>
+        <p id="error" class="error"></p>
+    </div>
+</body>
+</html>
