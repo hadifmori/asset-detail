@@ -3,51 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Registration</title>
+    <title>Register Asset</title>
     <style>
         /* Basic styling */
         body { font-family: Arial, sans-serif; }
-        form { max-width: 600px; margin: 0 auto; }
-        label { display: block; margin-bottom: 5px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
         button { padding: 10px 20px; background-color: #007bff; color: #fff; border: none; cursor: pointer; }
         button:hover { background-color: #0056b3; }
-        img.preview { max-width: 100%; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <form>
-        <label for="assetID">Asset ID:</label>
-        <input type="text" id="assetID" name="assetID" required>
+    <div class="container">
+        <h1>Register Asset</h1>
+        <form id="registerForm">
+            <label for="assetID">Asset ID:</label>
+            <input type="text" id="assetID" name="assetID" required>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" required></textarea>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
 
-        <label for="location">Location:</label>
-        <input type="text" id="location" name="location">
+            <label for="location">Location:</label>
+            <input type="text" id="location" name="location">
 
-        <label for="remark">Remark:</label>
-        <textarea id="remark" name="remark" rows="4"></textarea>
+            <label for="remark">Remark:</label>
+            <textarea id="remark" name="remark" rows="4"></textarea>
 
-        <label for="picture">Picture:</label>
-        <input type="file" id="picture" name="picture" accept="image/*" required>
-        <img class="preview" id="previewImage" src="#" alt="Preview">
+            <!-- Add an input field for uploading image (optional) -->
+            <!-- <input type="file" id="picture" name="picture" accept="image/*" required> -->
 
-        <button type="submit">Register</button>
-    </form>
+            <button type="submit">Register</button>
+        </form>
+    </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script>
-        // JavaScript to update preview image
-        document.getElementById("picture").addEventListener("change", function(event) {
-            var preview = document.getElementById("previewImage");
-            var file = event.target.files[0];
-            var reader = new FileReader();
+        // Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
+  authDomain: "asset-tagging-testing.firebaseapp.com",
+  projectId: "asset-tagging-testing",
+  storageBucket: "asset-tagging-testing.appspot.com",
+  messagingSenderId: "332441186174",
+  appId: "1:332441186174:web:9fd52a411725f95032cd2f",
+  measurementId: "G-GLDNF2CFKB"
+        };
 
-            reader.onload = function(e) {
-                preview.src = e.target.result;
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Function to register asset
+        document.getElementById("registerForm").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get asset data from form
+            const assetData = {
+                assetID: document.getElementById("assetID").value,
+                description: document.getElementById("description").value,
+                location: document.getElementById("location").value,
+                remark: document.getElementById("remark").value
+            };
+
+            // Add asset data to Firestore
+            try {
+                await db.collection("assets").add(assetData);
+                // Redirect to view asset page after successful registration
+                window.location.href = "view_asset.html";
+            } catch (error) {
+                console.error("Error registering asset:", error);
             }
-
-            reader.readAsDataURL(file);
         });
     </script>
 </body>
