@@ -11,11 +11,12 @@
         button { width: 100%; padding: 10px; }
         .error { color: red; }
     </style>
+    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+        
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
             authDomain: "asset-tagging-testing.firebaseapp.com",
@@ -26,10 +27,11 @@
             measurementId: "G-GLDNF2CFKB"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Function to handle login
         async function handleLogin() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
@@ -42,7 +44,9 @@
                 if (docSnap.exists()) {
                     const loginData = docSnap.data();
                     if (username === loginData.username && password === loginData.password) {
+                        // Set session storage
                         sessionStorage.setItem("loggedIn", true);
+                        // Redirect to asset_management.html upon successful login
                         window.location.href = "asset_management.html";
                     } else {
                         errorElement.textContent = "Invalid username or password.";
@@ -54,18 +58,21 @@
                 errorElement.textContent = "Error during login: " + error.message;
             }
 
+            // Clear password field after login attempt
             document.getElementById("password").value = "";
         }
-
-        window.handleLogin = handleLogin;
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Login</h1>
+        <!-- Username input -->
         <input type="text" id="username" placeholder="Username">
+        <!-- Password input -->
         <input type="password" id="password" placeholder="Password">
+        <!-- Login button -->
         <button onclick="handleLogin()">Login</button>
+        <!-- Error message display -->
         <p id="error" class="error"></p>
     </div>
 </body>
