@@ -12,8 +12,6 @@
         .error { color: red; }
     </style>
     <!-- Firebase SDK -->
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -36,33 +34,30 @@
             const description = document.getElementById("description").value;
             const location = document.getElementById("location").value;
             const remark = document.getElementById("remark").value;
-            const pictureFile = document.getElementById("picture").files[0]; // Get the selected file
-            const username = document.getElementById("username").value; // Added username input
+            const pictureFile = document.getElementById("picture").files[0];
+            const username = document.getElementById("username").value;
             const errorElement = document.getElementById("error");
 
             try {
-                // Upload picture to storage (if needed)
-                // For now, we'll just get the file name
                 const pictureFileName = pictureFile ? pictureFile.name : "No Picture";
 
-                // Save asset data to Firestore
                 await setDoc(doc(db, "assets", assetId), {
                     assetId: assetId,
                     description: description,
                     location: location,
                     remark: remark,
                     picture: pictureFileName,
-                    username: username // Save username in Firestore
+                    username: username
                 });
 
                 errorElement.textContent = "Asset registered successfully.";
-
-                // Redirect to viewAssets.html
-                window.location.href = "viewAssets.html";
+                window.location.href = "viewAssets.html"; // Redirect to viewAssets.html
             } catch (error) {
                 errorElement.textContent = "Error registering asset: " + error;
             }
         }
+
+        window.registerAsset = registerAsset; // Expose registerAsset function to the global scope
     </script>
 </head>
 <body>
