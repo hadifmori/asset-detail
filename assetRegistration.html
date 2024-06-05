@@ -46,6 +46,11 @@
 
             try {
                 const pictureFileName = pictureFile ? pictureFile.name : "No Picture";
+                const pictureFileType = pictureFile ? pictureFile.type : "";
+                if (pictureFileType !== "image/jpeg") {
+                    errorElement.textContent = "Please upload a JPG image.";
+                    return;
+                }
                 await setDoc(doc(db, "assets", assetId), {
                     assetId: assetId,
                     description: description,
@@ -73,7 +78,7 @@
         <input type="text" id="description" placeholder="Description" required>
         <input type="text" id="location" placeholder="Location" required>
         <input type="text" id="remark" placeholder="Remark" required>
-        <input type="file" id="picture" accept="image/*">
+        <input type="file" id="picture" accept="image/jpeg" required>
         <input type="text" id="username" placeholder="Username" required>
         <button>Register Asset</button>
         <p id="error" class="error"></p>
