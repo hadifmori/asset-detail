@@ -1,96 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asset Registration</title>
-  <!-- Firebase JavaScript SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Registration</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        input[type="text"], select { width: 100%; padding: 10px; margin: 10px 0; }
+        button { width: 100%; padding: 10px; }
+        .error { color: red; }
+    </style>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+    apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
+    authDomain: "asset-tagging-testing.firebaseapp.com",
+    projectId: "asset-tagging-testing",
+    storageBucket: "asset-tagging-testing.appspot.com",
+    messagingSenderId: "332441186174",
+    appId: "1:332441186174:web:9fd52a411725f95032cd2f",
+    measurementId: "G-GLDNF2CFKB"
+        };
 
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    const firebaseConfig = {
-      apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
-      authDomain: "asset-tagging-testing.firebaseapp.com",
-      projectId: "asset-tagging-testing",
-      storageBucket: "asset-tagging-testing.appspot.com",
-      messagingSenderId: "332441186174",
-      appId: "1:332441186174:web:9fd52a411725f95032cd2f",
-      measurementId: "G-GLDNF2CFKB"
-    };
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
+        // Function to register an asset
+        async function registerAsset() {
+            const assetID = document.getElementById("assetID").value;
+            const description = document.getElementById("description").value;
+            const location = document.getElementById("location").value;
+            const errorElement = document.getElementById("error");
+
+            try {
+                // Check if asset with the same ID already exists
+                const assetRef = doc(db, "assets", assetID);
+                const assetSnapshot = await getDoc(assetRef);
+
+                if (assetSnapshot.exists()) {
+                    errorElement.textContent = "Asset with ID " + assetID + " already exists.";
+                } else {
+                    // Register the asset
+                    await setDoc(assetRef, {
+                        description: description,
+                        location: location
+                    });
+                    errorElement.textContent = "Asset registered successfully.";
+                }
+            } catch (error) {
+                errorElement.textContent = "Error registering asset: " + error;
+            }
+        }
+    </script>
 </head>
 <body>
-  <h1>Asset Registration</h1>
-  
-  <!-- Asset Registration Form -->
-  <form id="assetForm">
-    <label for="assetType">Asset Type:</label><br>
-    <input type="text" id="assetType" name="assetType"><br>
-    <label for="serialNumber">Serial Number:</label><br>
-    <input type="text" id="serialNumber" name="serialNumber"><br>
-    <label for="model">Model:</label><br>
-    <input type="text" id="model" name="model"><br>
-    <label for="purchaseDate">Purchase Date:</label><br>
-    <input type="date" id="purchaseDate" name="purchaseDate"><br>
-    <label for="location">Location:</label><br>
-    <input type="text" id="location" name="location"><br><br>
-    <button type="submit">Register Asset</button>
-  </form>
-
-  <!-- Display Registered Assets -->
-  <h2>Registered Assets</h2>
-  <ul id="assetList"></ul>
-
-  <!-- JavaScript Code -->
-  <script>
-    // Reference to Firestore collection
-    const db = firebase.firestore();
-    const assetsRef = db.collection('assets');
-
-    // Asset Registration Form Submission
-    document.getElementById('assetForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      const assetData = {
-        asset_type: document.getElementById('assetType').value,
-        serial_number: document.getElementById('serialNumber').value,
-        model: document.getElementById('model').value,
-        purchase_date: document.getElementById('purchaseDate').value,
-        location: document.getElementById('location').value
-      };
-
-      // Add asset data to Firestore
-      assetsRef.add(assetData)
-        .then(function(docRef) {
-          console.log("Asset registered with ID: ", docRef.id);
-          // Clear form fields after successful registration
-          document.getElementById('assetForm').reset();
-        })
-        .catch(function(error) {
-          console.error("Error registering asset: ", error);
-        });
-    });
-
-    // Display Registered Assets
-    assetsRef.onSnapshot(function(snapshot) {
-      const assetList = document.getElementById('assetList');
-      assetList.innerHTML = ''; // Clear previous list
-
-      snapshot.forEach(function(doc) {
-        const assetData = doc.data();
-        const li = document.createElement('li');
-        li.textContent = `Type: ${assetData.asset_type}, Serial: ${assetData.serial_number}, Model: ${assetData.model}, Location: ${assetData.location}`;
-        assetList.appendChild(li);
-      });
-    });
-  </script>
+    <div class="container">
+        <h1>Asset Registration</h1>
+        <input type="text" id="assetID" placeholder="Asset ID">
+        <input type="text" id="description" placeholder="Description">
+        <input type="text" id="location" placeholder="Location">
+        <button onclick="registerAsset()">Register Asset</button>
+        <p id="error" class="error"></p>
+    </div>
 </body>
 </html>
