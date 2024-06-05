@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Asset</title>
+    <title>Asset Information</title>
     <style>
-        body { font-family: Arial, sans-serif; }
+        body { font-family: Arial, sans-serif; text-align: center; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        .asset { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
-        .asset img { max-width: 100%; height: auto; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 8px; margin: 4px 0; box-sizing: border-box; }
+        button { padding: 10px 20px; margin-top: 10px; }
         .error { color: red; }
+        .asset-image { width: 300px; height: auto; }
+        .form-group { display: flex; justify-content: center; margin-top: 20px; }
+        .form-group label { margin-right: 10px; }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
@@ -45,10 +51,10 @@
 
                 if (docSnap.exists()) {
                     const assetData = docSnap.data();
-                    document.getElementById("assetId").textContent = assetData.assetId;
-                    document.getElementById("description").textContent = assetData.description;
-                    document.getElementById("location").textContent = assetData.location;
-                    document.getElementById("remark").textContent = assetData.remark;
+                    document.getElementById("assetId").value = assetData.assetId;
+                    document.getElementById("description").value = assetData.description;
+                    document.getElementById("location").value = assetData.location;
+                    document.getElementById("remark").value = assetData.remark;
                     document.getElementById("username").textContent = assetData.username;
                     document.getElementById("picture").src = assetData.picture; // Assuming picture is a URL
                 } else {
@@ -59,46 +65,68 @@
             }
         }
 
-        async function populateAssetsDropdown() {
+        async function saveAssetInfo() {
+            const assetId = document.getElementById("assetId").value;
+            const description = document.getElementById("description").value;
+            const location = document.getElementById("location").value;
+            const remark = document.getElementById("remark").value;
             const errorElement = document.getElementById("error");
-            const selectElement = document.getElementById("assetSelect");
 
             try {
-                const querySnapshot = await getDocs(collection(db, "assets"));
-                querySnapshot.forEach((doc) => {
-                    const option = document.createElement("option");
-                    option.value = doc.id;
-                    option.textContent = doc.id;
-                    selectElement.appendChild(option);
-                });
+                await setDoc(doc(db, "assets", assetId), {
+                    assetId: assetId,
+                    description: description,
+                    location: location,
+                    remark: remark
+                }, { merge: true });
+
+                errorElement.textContent = "Asset information updated successfully.";
             } catch (error) {
-                errorElement.textContent = "Error fetching assets: " + error;
+                errorElement.textContent = "Error saving asset information: " + error;
             }
         }
 
-        // Attach event listener for dropdown change
+        // Example of a loadAsset call (replace with actual assetId)
         window.onload = function() {
-            populateAssetsDropdown();
-            document.getElementById("assetSelect").addEventListener("change", function() {
-                const selectedAssetId = this.value;
-                loadAsset(selectedAssetId);
-            });
+            const assetId = new URLSearchParams(window.location.search).get("assetId");
+            if (assetId) {
+                loadAsset(assetId);
+            } else {
+                document.getElementById("error").textContent = "No asset ID provided in URL.";
+            }
         };
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>View Asset</h1>
-        <select id="assetSelect">
-            <option value="">Select an asset</option>
-        </select>
-        <div class="asset">
-            <p><strong>Asset ID:</strong> <span id="assetId"></span></p>
-            <p><strong>Description:</strong> <span id="description"></span></p>
-            <p><strong>Location:</strong> <span id="location"></span></p>
-            <p><strong>Remark:</strong> <span id="remark"></span></p>
-            <p><strong>Username:</strong> <span id="username"></span></p>
-            <img id="picture" src="" alt="Asset Picture">
+        <h1>Asset Information</h1>
+        <p><strong>Current User:</strong> <span id="username">Syazu</span></p>
+        <img id="picture" class="asset-image" src="" alt="Asset Picture">
+        <table>
+            <tr>
+                <th>Asset ID</th>
+                <td><input type="text" id="assetId" disabled></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td><input type="text" id="description"></td>
+            </tr>
+            <tr>
+                <th>Location</th>
+                <td><input type="text" id="location"></td>
+            </tr>
+            <tr>
+                <th>Remark</th>
+                <td><input type="text" id="remark"></td>
+            </tr>
+        </table>
+        <button onclick="saveAssetInfo()">Save Asset Info</button>
+        <div class="form-group">
+            <label for="newUsername">Change Username:</label>
+            <input type="text" id="newUsername">
+            <label for="password">Password:</label>
+            <input type="password" id="password">
+            <button>Change</button>
         </div>
         <p id="error" class="error"></p>
     </div>
