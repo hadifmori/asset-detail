@@ -7,10 +7,11 @@
     <style>
         body { font-family: Arial, sans-serif; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        table, th, td { border: 1px solid #ccc; }
-        th, td { padding: 10px; text-align: left; }
+        .asset { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        .asset img { max-width: 100%; height: auto; }
+        .error { color: red; }
     </style>
+    <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module">
@@ -32,35 +33,49 @@
 
         async function loadAsset() {
             const urlParams = new URLSearchParams(window.location.search);
-            const assetId = urlParams.get('assetId');
-            const assetInfoContainer = document.getElementById("assetInfo");
+            const assetId = urlParams.get('id');
+            const errorElement = document.getElementById("error");
+
+            if (!assetId) {
+                errorElement.textContent = "No asset ID provided.";
+                return;
+            }
 
             try {
-                const assetDocRef = doc(db, "assets", assetId);
-                const assetDocSnapshot = await getDoc(assetDocRef);
-                
-                if (assetDocSnapshot.exists()) {
-                    const assetData = assetDocSnapshot.data();
-                    assetInfoContainer.innerHTML = `
-                        <h1>Asset ID: ${assetData.assetId}</h1>
-                        <table>
-                            <tr><th>Description</th><td>${assetData.description}</td></tr>
-                            <tr><th>Location</th><td>${assetData.location}</td></tr>
-                            <tr><th>Remark</th><td>${assetData.remark}</td></tr>
-                        </table>
-                    `;
+                const docRef = doc(db, "assets", assetId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const assetData = docSnap.data();
+                    document.getElementById("assetId").textContent = assetData.assetId;
+                    document.getElementById("description").textContent = assetData.description;
+                    document.getElementById("location").textContent = assetData.location;
+                    document.getElementById("remark").textContent = assetData.remark;
+                    document.getElementById("username").textContent = assetData.username;
+                    document.getElementById("picture").src = assetData.picture; // Assuming picture is a URL
                 } else {
-                    assetInfoContainer.innerHTML = "<p>Asset not found.</p>";
+                    errorElement.textContent = "No such asset found.";
                 }
             } catch (error) {
-                console.error("Error loading asset:", error);
+                errorElement.textContent = "Error loading asset: " + error;
             }
         }
+
+        window.loadAsset = loadAsset; // Expose loadAsset function to the global scope
     </script>
 </head>
 <body onload="loadAsset()">
-    <div class="container" id="assetInfo">
-        <!-- Asset information will be dynamically loaded here -->
+    <div class="container">
+        <h1>View Asset</h1>
+        <div class="asset">
+            <p><strong>Asset ID:</strong> <span id="assetId"></span></p>
+            <p><strong>Description:</strong> <span id="description"></span></p>
+            <p><strong>Location:</strong> <span id="location"></span></p>
+            <p><strong>Remark:</strong> <span id="remark"></span></p>
+            <p><strong>Username:</strong> <span id="username"></span></p>
+            <img id="picture" src="" alt="Asset Picture">
+        </div>
+        <p id="error" class="error"></p>
     </div>
 </body>
 </html>
