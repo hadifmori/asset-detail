@@ -10,12 +10,11 @@
         .asset { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
         .asset img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
         .error { color: red; }
-        input[type="text"] { width: calc(100% - 160px); margin-left: 10px; }
         h1, .username { text-align: center; }
         .username { margin-top: 10px; }
-        .details { margin-top: 20px; text-align: left; }
-        .details p { text-align: left; display: flex; align-items: center; justify-content: space-between; }
-        .details img { margin-top: 20px; }
+        .details { margin-top: 20px; text-align: center; }
+        .details table { margin: 0 auto; }
+        .details td { padding: 10px; text-align: left; }
         .centered { text-align: center; }
         .centered p { display: inline-block; margin: 0; }
         .centered input[type="text"] { display: inline-block; width: auto; margin-left: 10px; }
@@ -123,11 +122,28 @@
         </div>
         <img id="picture" src="" alt="Asset Picture">
         <div class="details">
-            <p><strong>Asset ID:</strong> <input type="text" id="assetId" readonly></p>
-            <p><strong>Description:</strong> <input type="text" id="description"></p>
-            <p><strong>Location:</strong> <input type="text" id="location"></p>
-            <p><strong>Remark:</strong> <input type="text" id="remark"></p>
-            <p><strong>QR Code:</strong> <img id="qrCode" src="" alt="QR Code"></p>
+            <table>
+                <tr>
+                    <td><strong>Asset ID:</strong></td>
+                    <td><input type="text" id="assetId" readonly></td>
+                </tr>
+                <tr>
+                    <td><strong>Description:</strong></td>
+                    <td><input type="text" id="description"></td>
+                </tr>
+                <tr>
+                    <td><strong>Location:</strong></td>
+                    <td><input type="text" id="location"></td>
+                </tr>
+                <tr>
+                    <td><strong>Remark:</strong></td>
+                    <td><input type="text" id="remark"></td>
+                </tr>
+                <tr>
+                    <td><strong>QR Code:</strong></td>
+                    <td><img id="qrCode" src="" alt="QR Code"></td>
+                </tr>
+            </table>
             <button id="saveButton">Save Asset Info</button>
         </div>
         <p id="error" class="error"></p>
