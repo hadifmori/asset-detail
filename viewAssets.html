@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; text-align: center; }
         .asset { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
-        .asset img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 400px; }
+        .asset img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
         .error { color: red; }
         h1, .username { text-align: center; }
         .username { margin-top: 10px; font-weight: bold; }
@@ -17,13 +17,16 @@
         .details td { padding: 10px; text-align: left; }
         .centered { text-align: center; }
         .centered p { display: inline-block; margin: 0; }
+        .asset img { max-width: 400px; max-height: 400px; }
+        .change-username { text-align: center; margin-top: 20px; }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
@@ -71,12 +74,49 @@
             }
         }
 
+        async function saveAsset() {
+            const assetId = document.getElementById("assetId").value;
+            const description = document.getElementById("description").value;
+            const location = document.getElementById("location").value;
+            const remark = document.getElementById("remark").value;
+            const newUsername = document.getElementById("newUsername").value.trim();
+            const currentUsername = document.getElementById("usernameDisplay").textContent;
+            const username = newUsername || currentUsername;
+            const errorElement = document.getElementById("error");
+
+            try {
+                const docRef = doc(db, "assets", assetId);
+                const docSnap = await getDoc(docRef);
+                let pictureUrl = "";
+
+                if (docSnap.exists()) {
+                    const assetData = docSnap.data();
+                    pictureUrl = assetData.picture || "";
+                }
+
+                await setDoc(doc(db, "assets", assetId), {
+                    assetId: assetId,
+                    description: description,
+                    location: location,
+                    remark: remark,
+                    picture: pictureUrl,
+                    username: username
+                });
+
+                errorElement.textContent = "Asset updated successfully.";
+                document.getElementById("usernameDisplay").textContent = username;
+            } catch (error) {
+                errorElement.textContent = "Error updating asset: " + error;
+            }
+        }
+
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const assetId = urlParams.get('assetId');
             if (assetId) {
                 loadAsset(assetId);
             }
+            document.getElementById("saveButton").addEventListener('click', saveAsset);
         };
     </script>
 </head>
@@ -106,6 +146,10 @@
                     <td><input type="text" id="remark"></td>
                 </tr>
             </table>
+            <button id="saveButton">Save Asset Info</button>
+            <div class="change-username">
+                <p><strong>Change Username: </strong><input type="text" id="newUsername" placeholder="Enter new username"></p>
+            </div>
         </div>
         <p id="error" class="error"></p>
     </div>
