@@ -17,7 +17,6 @@
         .details td { padding: 10px; text-align: left; }
         .centered { text-align: center; }
         .centered p { display: inline-block; margin: 0; }
-        .centered input[type="text"] { display: inline-block; width: auto; margin-left: 10px; }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
@@ -55,7 +54,7 @@
                     document.getElementById("description").value = assetData.description;
                     document.getElementById("location").value = assetData.location;
                     document.getElementById("remark").value = assetData.remark;
-                    document.getElementById("username").value = assetData.username;
+                    document.getElementById("usernameDisplay").textContent = assetData.username;
 
                     const pictureElement = document.getElementById("picture");
 
@@ -78,7 +77,7 @@
             const description = document.getElementById("description").value;
             const location = document.getElementById("location").value;
             const remark = document.getElementById("remark").value;
-            const username = document.getElementById("username").value;
+            const username = document.getElementById("usernameDisplay").textContent;
             const errorElement = document.getElementById("error");
 
             try {
@@ -108,8 +107,8 @@
 <body>
     <div class="container">
         <h1>View Asset</h1>
-        <div class="username centered">
-            <p><strong>Current User:</strong> <input type="text" id="username" readonly></p>
+        <div class="username">
+            <p><strong>Current User: </strong><span id="usernameDisplay"></span></p>
         </div>
         <img id="picture" src="" alt="Asset Picture">
         <div class="details">
