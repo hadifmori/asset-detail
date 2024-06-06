@@ -11,11 +11,14 @@
         .asset img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
         .error { color: red; }
         input[type="text"] { width: calc(100% - 160px); margin-left: 10px; }
-        h1 { text-align: center; }
-        .username { margin-top: 10px; text-align: center; }
+        h1, .username { text-align: center; }
+        .username { margin-top: 10px; }
         .details { margin-top: 20px; text-align: left; }
         .details p { text-align: left; display: flex; align-items: center; justify-content: space-between; }
         .details img { margin-top: 20px; }
+        .centered { text-align: center; }
+        .centered p { display: inline-block; margin: 0; }
+        .centered input[type="text"] { display: inline-block; width: auto; margin-left: 10px; }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
@@ -115,8 +118,8 @@
 <body>
     <div class="container">
         <h1>View Asset</h1>
-        <div class="username">
-            <p><strong>Current User:</strong> <input type="text" id="username" required></p>
+        <div class="username centered">
+            <p><strong>Current User:</strong> <input type="text" id="username" readonly></p>
         </div>
         <img id="picture" src="" alt="Asset Picture">
         <div class="details">
