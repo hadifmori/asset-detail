@@ -77,17 +77,30 @@
             const description = document.getElementById("description").value;
             const location = document.getElementById("location").value;
             const remark = document.getElementById("remark").value;
-            const username = document.getElementById("newUsername").value || document.getElementById("usernameDisplay").textContent;
+            const newUsername = document.getElementById("newUsername").value.trim();
+            const currentUsername = document.getElementById("usernameDisplay").textContent;
+            const username = newUsername || currentUsername;
             const errorElement = document.getElementById("error");
 
             try {
+                const docRef = doc(db, "assets", assetId);
+                const docSnap = await getDoc(docRef);
+                let pictureUrl = "";
+
+                if (docSnap.exists()) {
+                    const assetData = docSnap.data();
+                    pictureUrl = assetData.picture || "";
+                }
+
                 await setDoc(doc(db, "assets", assetId), {
                     assetId: assetId,
                     description: description,
                     location: location,
                     remark: remark,
+                    picture: pictureUrl,
                     username: username
                 });
+
                 errorElement.textContent = "Asset updated successfully.";
                 document.getElementById("usernameDisplay").textContent = username;
             } catch (error) {
