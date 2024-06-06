@@ -23,7 +23,6 @@
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -66,14 +65,6 @@
                     } else {
                         errorElement.textContent = "No picture available for this asset.";
                     }
-
-                    QRCode.toDataURL(assetData.assetId, function (err, url) {
-                        if (err) {
-                            errorElement.textContent = "Error generating QR code: " + err;
-                            return;
-                        }
-                        document.getElementById("qrCode").src = url;
-                    });
                 } else {
                     errorElement.textContent = "No such asset found.";
                 }
@@ -138,10 +129,6 @@
                 <tr>
                     <td><strong>Remark:</strong></td>
                     <td><input type="text" id="remark"></td>
-                </tr>
-                <tr>
-                    <td><strong>QR Code:</strong></td>
-                    <td><img id="qrCode" src="" alt="QR Code"></td>
                 </tr>
             </table>
             <button id="saveButton">Save Asset Info</button>
