@@ -9,17 +9,23 @@
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
         input, button { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
         .error { color: red; }
+        #imagePreview {
+            display: none;
+            max-width: 400px;
+            max-height: 400px;
+            margin: 20px 0;
+        }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-  const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyDq2AzURe0BfaRSj-gltspgh5JqgHZSnjY",
             authDomain: "asset-tagging-testing.firebaseapp.com",
             projectId: "asset-tagging-testing",
@@ -27,53 +33,66 @@
             messagingSenderId: "332441186174",
             appId: "1:332441186174:web:9fd52a411725f95032cd2f",
             measurementId: "G-GLDNF2CFKB"
-  };
+        };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
 
-  async function registerAsset() {
-    const assetId = document.getElementById("assetId").value.trim();
-    const description = document.getElementById("description").value.trim();
-    const location = document.getElementById("location").value.trim();
-    const remark = document.getElementById("remark").value.trim();
-    const pictureFile = document.getElementById("picture").files[0];
-    const username = document.getElementById("username").value.trim();
-    const errorElement = document.getElementById("error");
+        async function registerAsset() {
+            const assetId = document.getElementById("assetId").value.trim();
+            const description = document.getElementById("description").value.trim();
+            const location = document.getElementById("location").value.trim();
+            const remark = document.getElementById("remark").value.trim();
+            const pictureFile = document.getElementById("picture").files[0];
+            const username = document.getElementById("username").value.trim();
+            const errorElement = document.getElementById("error");
 
-    if (!assetId || !description || !location || !remark || !username) {
-      errorElement.textContent = "All fields are required.";
-      return;
-    }
+            if (!assetId || !description || !location || !remark || !username) {
+                errorElement.textContent = "All fields are required.";
+                return;
+            }
 
-    try {
-      let pictureUrl = "";
-      if (pictureFile) {
-        const pictureRef = ref(storage, `assets/${assetId}/${pictureFile.name}`);
-        await uploadBytes(pictureRef, pictureFile);
-        pictureUrl = await getDownloadURL(pictureRef);
-      }
+            try {
+                let pictureUrl = "";
+                if (pictureFile) {
+                    const pictureRef = ref(storage, `assets/${assetId}/${pictureFile.name}`);
+                    await uploadBytes(pictureRef, pictureFile);
+                    pictureUrl = await getDownloadURL(pictureRef);
+                }
 
-      await setDoc(doc(db, "assets", assetId), {
-        assetId: assetId,
-        description: description,
-        location: location,
-        remark: remark,
-        picture: pictureUrl,
-        username: username
-      });
+                await setDoc(doc(db, "assets", assetId), {
+                    assetId: assetId,
+                    description: description,
+                    location: location,
+                    remark: remark,
+                    picture: pictureUrl,
+                    username: username
+                });
 
-      window.location.href = `viewAssets.html?assetId=${assetId}`;
-    } catch (error) {
-      errorElement.textContent = "Error registering asset: " + error.message;
-    }
-  }
+                window.location.href = `viewAssets.html?assetId=${assetId}`;
+            } catch (error) {
+                errorElement.textContent = "Error registering asset: " + error.message;
+            }
+        }
 
-  window.onload = function() {
-    document.querySelector('button').addEventListener('click', registerAsset);
-  };
-</script>
+        window.onload = function() {
+            document.querySelector('button').addEventListener('click', registerAsset);
+
+            document.getElementById("picture").addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById("imagePreview");
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        };
+    </script>
 </head>
 <body>
     <div class="container">
@@ -83,6 +102,7 @@
         <input type="text" id="location" placeholder="Location" required>
         <input type="text" id="remark" placeholder="Remark" required>
         <input type="file" id="picture" accept="image/*">
+        <img id="imagePreview" alt="Image Preview">
         <input type="text" id="username" placeholder="Username" required>
         <button>Register Asset</button>
         <p id="error" class="error"></p>
