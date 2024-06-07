@@ -184,8 +184,8 @@
             const username = newUsername || currentUsername;
             const errorElement = document.getElementById("error");
 
-            if (!password) {
-                errorElement.textContent = "Please enter the password to change the user.";
+            if (password !== "MMC123") {
+                errorElement.textContent = "Incorrect password. Please enter the correct password to change the user.";
                 return;
             }
 
