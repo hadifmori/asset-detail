@@ -74,7 +74,8 @@
             border-radius: 4px;
         }
 
-        #saveButton {
+        #saveButton,
+        #generateQRButton {
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
@@ -84,7 +85,8 @@
             margin-top: 20px;
         }
 
-        #saveButton:hover {
+        #saveButton:hover,
+        #generateQRButton:hover {
             background-color: #0056b3;
         }
 
@@ -106,11 +108,18 @@
             color: red;
             margin-top: 20px;
         }
+
+        .qr-code-container {
+            margin-top: 20px;
+            text-align: center;
+        }
     </style>
     <!-- Firebase SDK -->
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js"></script>
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -197,6 +206,16 @@
             }
         }
 
+        function generateQRCode() {
+            const assetId = document.getElementById("assetId").value;
+            const url = window.location.href.split('?')[0] + '?assetId=' + assetId;
+            const qrContainer = document.getElementById("qrCode");
+            qrContainer.innerHTML = "";
+            QRCode.toCanvas(qrContainer, url, function (error) {
+                if (error) console.error(error);
+            });
+        }
+
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
             const assetId = urlParams.get('assetId');
@@ -204,6 +223,7 @@
                 loadAsset(assetId);
             }
             document.getElementById("saveButton").addEventListener('click', saveAsset);
+            document.getElementById("generateQRButton").addEventListener('click', generateQRCode);
         };
     </script>
 </head>
@@ -237,9 +257,13 @@
                 </tr>
             </table>
             <button id="saveButton">Save Asset Info</button>
+            <button id="generateQRButton">Generate QR Code</button>
             <div class="change-username">
                 <p><strong>Change Username: </strong><input type="text" id="newUsername" placeholder="Enter new username"></p>
             </div>
+        </div>
+        <div class="qr-code-container">
+            <canvas id="qrCode"></canvas>
         </div>
         <p id="error" class="error"></p>
     </div>
