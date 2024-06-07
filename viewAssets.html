@@ -66,7 +66,8 @@
             margin-bottom: 5px;
         }
 
-        input[type="text"] {
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
@@ -94,9 +95,11 @@
             margin-top: 20px;
         }
 
-        .change-username input[type="text"] {
+        .change-username input[type="text"],
+        .change-username input[type="password"] {
             width: calc(100% - 150px);
             margin-right: 10px;
+            margin-bottom: 10px;
         }
 
         .change-username p {
@@ -176,9 +179,15 @@
             const location = document.getElementById("location").value;
             const remark = document.getElementById("remark").value;
             const newUsername = document.getElementById("newUsername").value.trim();
+            const password = document.getElementById("password").value.trim();
             const currentUsername = document.getElementById("usernameDisplay").textContent;
             const username = newUsername || currentUsername;
             const errorElement = document.getElementById("error");
+
+            if (!password) {
+                errorElement.textContent = "Please enter the password to change the user.";
+                return;
+            }
 
             try {
                 const docRef = doc(db, "assets", assetId);
@@ -196,7 +205,8 @@
                     location: location,
                     remark: remark,
                     picture: pictureUrl,
-                    username: username
+                    username: username,
+                    password: password
                 });
 
                 errorElement.textContent = "Asset updated successfully.";
@@ -259,7 +269,9 @@
             <button id="saveButton">Save Asset Info</button>
             <button id="generateQRButton">Generate QR Code</button>
             <div class="change-username">
-                <p><strong>Change User: </strong><input type="text" id="newUsername" placeholder="Enter new username"></p>
+                <p><strong>Change User: </strong></p>
+                <input type="text" id="newUsername" placeholder="Enter new user">
+                <input type="password" id="password" placeholder="Enter password">
             </div>
         </div>
         <div class="qr-code-container">
