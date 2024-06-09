@@ -77,7 +77,8 @@
 
         #saveButton,
         #generateQRButton,
-        #saveUserChangesButton {
+        #saveUserChangesButton,
+        #downloadQRButton {
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
@@ -90,7 +91,8 @@
 
         #saveButton:hover,
         #generateQRButton:hover,
-        #saveUserChangesButton:hover {
+        #saveUserChangesButton:hover,
+        #downloadQRButton:hover {
             background-color: #0056b3;
         }
 
@@ -241,6 +243,19 @@
             });
         }
 
+        function downloadQRCode() {
+            const qrCanvas = document.querySelector("#qrCode canvas");
+            if (qrCanvas) {
+                const link = document.createElement("a");
+                link.href = qrCanvas.toDataURL("image/png");
+                link.download = "qr_code.png";
+                link.click();
+            } else {
+                const errorElement = document.getElementById("error");
+                errorElement.textContent = "Please generate a QR code first.";
+            }
+        }
+
         window.onload = function () {
             const urlParams = new URLSearchParams(window.location.search);
             const assetId = urlParams.get('assetId');
@@ -248,8 +263,9 @@
                 loadAsset(assetId);
             }
             document.getElementById("saveButton").addEventListener('click', saveAsset);
-            document.getElementById("generateQRButton").addEventListener('click', generateQRCode);
             document.getElementById("saveUserChangesButton").addEventListener('click', saveUserChanges);
+            document.getElementById("generateQRButton").addEventListener('click', generateQRCode);
+            document.getElementById("downloadQRButton").addEventListener('click', downloadQRCode);
         };
     </script>
 </head>
@@ -284,6 +300,7 @@
             </table>
             <button id="saveButton">Save Asset Info</button>
             <button id="generateQRButton">Generate QR Code</button>
+            <button id="downloadQRButton">Download QR Code</button>
             <div class="change-username">
                 <p><strong>Change User: </strong></p>
                 <input type="text" id="newUsername" placeholder="Enter new user">
