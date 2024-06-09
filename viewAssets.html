@@ -94,21 +94,6 @@
             background-color: #0056b3;
         }
 
-        #downloadQRButton {
-            display: none;
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        #downloadQRButton:hover {
-            background-color: #218838;
-        }
-
         .change-username {
             margin-top: 20px;
         }
@@ -252,25 +237,8 @@
             const qrContainer = document.getElementById("qrCode");
             qrContainer.innerHTML = "";
             QRCode.toCanvas(qrContainer, url, function (error) {
-                if (error) {
-                    console.error(error);
-                    document.getElementById("error").textContent = "Error generating QR code.";
-                } else {
-                    document.getElementById("downloadQRButton").style.display = "block";
-                }
+                if (error) console.error(error);
             });
-        }
-
-        function downloadQRCode() {
-            const qrCanvas = document.querySelector("#qrCode canvas");
-            if (qrCanvas) {
-                const link = document.createElement("a");
-                link.href = qrCanvas.toDataURL("image/png");
-                link.download = "qr_code.png";
-                link.click();
-            } else {
-                document.getElementById("error").textContent = "QR code is not generated yet.";
-            }
         }
 
         window.onload = function () {
@@ -280,9 +248,8 @@
                 loadAsset(assetId);
             }
             document.getElementById("saveButton").addEventListener('click', saveAsset);
-            document.getElementById("saveUserChangesButton").addEventListener('click', saveUserChanges);
             document.getElementById("generateQRButton").addEventListener('click', generateQRCode);
-            document.getElementById("downloadQRButton").addEventListener('click', downloadQRCode);
+            document.getElementById("saveUserChangesButton").addEventListener('click', saveUserChanges);
         };
     </script>
 </head>
@@ -325,8 +292,7 @@
             </div>
         </div>
         <div class="qr-code-container">
-            <div id="qrCode"></div>
-            <button id="downloadQRButton">Download QR Code</button>
+            <canvas id="qrCode"></canvas>
         </div>
         <p id="error" class="error"></p>
     </div>
