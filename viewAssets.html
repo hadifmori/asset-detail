@@ -252,17 +252,21 @@
             const qrContainer = document.getElementById("qrCode");
             qrContainer.innerHTML = "";
             QRCode.toCanvas(qrContainer, url, function (error) {
-                if (error) console.error(error);
-                document.getElementById("downloadQRButton").style.display = "block";
+                if (error) {
+                    console.error(error);
+                    document.getElementById("error").textContent = "Error generating QR code: " + error;
+                } else {
+                    document.getElementById("downloadQRButton").style.display = "block";
+                }
             });
         }
 
         function downloadQRCode() {
-            const qrCanvas = document.querySelector("#qrCode canvas");
-            if (qrCanvas) {
-                const link = document.createElement("a");
-                link.href = qrCanvas.toDataURL("image/png");
-                link.download = "qr_code.png";
+            const canvas = document.querySelector('#qrCode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL();
+                link.download = 'qr_code.png';
                 link.click();
             } else {
                 const errorElement = document.getElementById("error");
