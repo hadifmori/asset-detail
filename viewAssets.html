@@ -77,8 +77,7 @@
 
         #saveButton,
         #generateQRButton,
-        #saveUserChangesButton,
-        #downloadQRButton {
+        #saveUserChangesButton {
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
@@ -91,9 +90,23 @@
 
         #saveButton:hover,
         #generateQRButton:hover,
-        #saveUserChangesButton:hover,
-        #downloadQRButton:hover {
+        #saveUserChangesButton:hover {
             background-color: #0056b3;
+        }
+
+        #downloadQRButton {
+            display: none;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #downloadQRButton:hover {
+            background-color: #218838;
         }
 
         .change-username {
@@ -240,6 +253,7 @@
             qrContainer.innerHTML = "";
             QRCode.toCanvas(qrContainer, url, function (error) {
                 if (error) console.error(error);
+                document.getElementById("downloadQRButton").style.display = "block";
             });
         }
 
@@ -252,7 +266,7 @@
                 link.click();
             } else {
                 const errorElement = document.getElementById("error");
-                errorElement.textContent = "Please generate a QR code first.";
+                errorElement.textContent = "QR code is not generated yet.";
             }
         }
 
@@ -300,7 +314,6 @@
             </table>
             <button id="saveButton">Save Asset Info</button>
             <button id="generateQRButton">Generate QR Code</button>
-            <button id="downloadQRButton">Download QR Code</button>
             <div class="change-username">
                 <p><strong>Change User: </strong></p>
                 <input type="text" id="newUsername" placeholder="Enter new user">
@@ -310,6 +323,7 @@
         </div>
         <div class="qr-code-container">
             <canvas id="qrCode"></canvas>
+            <button id="downloadQRButton">Download QR Code</button>
         </div>
         <p id="error" class="error"></p>
     </div>
