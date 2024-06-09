@@ -269,8 +269,7 @@
                 link.download = "qr_code.png";
                 link.click();
             } else {
-                const errorElement = document.getElementById("error");
-                errorElement.textContent = "QR code is not generated yet.";
+                document.getElementById("error").textContent = "QR code is not generated yet.";
             }
         }
 
@@ -326,7 +325,7 @@
             </div>
         </div>
         <div class="qr-code-container">
-            <canvas id="qrCode"></canvas>
+            <div id="qrCode"></div>
             <button id="downloadQRButton">Download QR Code</button>
         </div>
         <p id="error" class="error"></p>
