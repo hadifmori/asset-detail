@@ -244,7 +244,7 @@
         }
 
         function downloadQRCode() {
-            const qrCanvas = document.getElementById("qrCode").getElementsByTagName("canvas")[0];
+            const qrCanvas = document.getElementById("qrCode").querySelector("canvas");
             if (!qrCanvas) {
                 alert("QR code is not generated yet.");
                 return;
@@ -316,4 +316,3 @@
 </body>
 
 </html>
-
