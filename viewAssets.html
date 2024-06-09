@@ -76,8 +76,27 @@
         }
 
         #saveButton,
-        #generateQRButton {
+        #generateQRButton,
+        #saveUserChangesButton {
             background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        #saveButton:hover,
+        #generateQRButton:hover,
+        #saveUserChangesButton:hover {
+            background-color: #0056b3;
+        }
+
+        #downloadQRButton {
+            display: none;
+            background-color: #28a745;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -86,10 +105,8 @@
             margin-top: 20px;
         }
 
-        #saveButton:hover,
-        #generateQRButton:hover,
         #downloadQRButton:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
         .change-username {
@@ -116,17 +133,6 @@
         .qr-code-container {
             margin-top: 20px;
             text-align: center;
-        }
-
-        #downloadQRButton {
-            display: none;
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
         }
     </style>
     <!-- Firebase SDK -->
@@ -190,16 +196,7 @@
             const description = document.getElementById("description").value;
             const location = document.getElementById("location").value;
             const remark = document.getElementById("remark").value;
-            const newUsername = document.getElementById("newUsername").value.trim();
-            const password = document.getElementById("password").value.trim();
-            const currentUsername = document.getElementById("usernameDisplay").textContent;
-            const username = newUsername || currentUsername;
             const errorElement = document.getElementById("error");
-
-            if (password !== "MMC123") {
-                errorElement.textContent = "Incorrect password. Please enter the correct password to change the user.";
-                return;
-            }
 
             try {
                 const docRef = doc(db, "assets", assetId);
@@ -217,14 +214,35 @@
                     location: location,
                     remark: remark,
                     picture: pictureUrl,
-                    username: username,
-                    password: password
+                    username: document.getElementById("usernameDisplay").textContent
                 });
 
                 errorElement.textContent = "Asset updated successfully.";
-                document.getElementById("usernameDisplay").textContent = username;
             } catch (error) {
                 errorElement.textContent = "Error updating asset: " + error;
+            }
+        }
+
+        async function saveUserChanges() {
+            const assetId = document.getElementById("assetId").value;
+            const newUsername = document.getElementById("newUsername").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const errorElement = document.getElementById("error");
+
+            if (password !== "MMC123") {
+                errorElement.textContent = "Incorrect password. Please enter the correct password to change the user.";
+                return;
+            }
+
+            try {
+                await setDoc(doc(db, "assets", assetId), {
+                    username: newUsername,
+                }, { merge: true });
+
+                errorElement.textContent = "User changed successfully.";
+                document.getElementById("usernameDisplay").textContent = newUsername;
+            } catch (error) {
+                errorElement.textContent = "Error changing user: " + error;
             }
         }
 
@@ -236,26 +254,24 @@
             QRCode.toCanvas(qrContainer, url, function (error) {
                 if (error) {
                     console.error(error);
-                    document.getElementById("downloadQRButton").style.display = "none"; // Hide download button if QR code generation fails
+                    document.getElementById("error").textContent = "Error generating QR code.";
                 } else {
-                    document.getElementById("downloadQRButton").style.display = "block"; // Show download button if QR code is generated successfully
+                    document.getElementById("downloadQRButton").style.display = "block";
                 }
             });
         }
 
         function downloadQRCode() {
-            const qrCanvas = document.getElementById("qrCode").querySelector("canvas");
-            if (!qrCanvas) {
-                alert("QR code is not generated yet.");
-                return;
+            const qrCanvas = document.querySelector("#qrCode canvas");
+            if (qrCanvas) {
+                const link = document.createElement("a");
+                link.href = qrCanvas.toDataURL("image/png");
+                link.download = "qr_code.png";
+                link.click();
+            } else {
+                const errorElement = document.getElementById("error");
+                errorElement.textContent = "QR code is not generated yet.";
             }
-            const qrDataURL = qrCanvas.toDataURL("image/png");
-            const link = document.createElement('a');
-            link.href = qrDataURL;
-            link.download = 'qr_code.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
 
         window.onload = function () {
@@ -265,6 +281,7 @@
                 loadAsset(assetId);
             }
             document.getElementById("saveButton").addEventListener('click', saveAsset);
+            document.getElementById("saveUserChangesButton").addEventListener('click', saveUserChanges);
             document.getElementById("generateQRButton").addEventListener('click', generateQRCode);
             document.getElementById("downloadQRButton").addEventListener('click', downloadQRCode);
         };
@@ -305,12 +322,13 @@
                 <p><strong>Change User: </strong></p>
                 <input type="text" id="newUsername" placeholder="Enter new user">
                 <input type="password" id="password" placeholder="Enter password">
+                <button id="saveUserChangesButton">Save User Changes</button>
             </div>
         </div>
         <div class="qr-code-container">
             <canvas id="qrCode"></canvas>
+            <button id="downloadQRButton">Download QR Code</button>
         </div>
-        <button id="downloadQRButton">Download QR Code</button>
         <p id="error" class="error"></p>
     </div>
 </body>
