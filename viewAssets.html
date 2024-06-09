@@ -246,20 +246,20 @@
             }
         }
 
-        function generateQRCode() {
-            const assetId = document.getElementById("assetId").value;
-            const url = window.location.href.split('?')[0] + '?assetId=' + assetId;
-            const qrContainer = document.getElementById("qrCode");
-            qrContainer.innerHTML = "";
-            QRCode.toCanvas(qrContainer, url, function (error) {
-                if (error) {
-                    console.error(error);
-                    document.getElementById("error").textContent = "Error generating QR code.";
-                } else {
-                    document.getElementById("downloadQRButton").style.display = "block";
-                }
-            });
+function generateQRCode() {
+    const assetId = document.getElementById("assetId").value;
+    const url = window.location.origin + window.location.pathname + '?assetId=' + assetId;
+    const qrContainer = document.getElementById("qrCode");
+    qrContainer.innerHTML = "";
+    QRCode.toCanvas(qrContainer, url, function (error) {
+        if (error) {
+            console.error(error);
+            document.getElementById("error").textContent = "Error generating QR code.";
+        } else {
+            document.getElementById("downloadQRButton").style.display = "block";
         }
+    });
+}
 
         function downloadQRCode() {
             const qrCanvas = document.querySelector("#qrCode canvas");
